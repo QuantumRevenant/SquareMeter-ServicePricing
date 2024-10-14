@@ -1,0 +1,17 @@
+{
+    "PricePerSquareMeter": 50,
+    "ValuePerSquareMeterPerPost": 25,
+    "PostsBeforeDiscountReduction": 5,
+    "InitialDiscount": 20,
+    "DiscountReduction": 2,
+    "SpecialPosts": [
+        {
+            "SquareMeters": 5,
+            "Discount": 0
+        },
+        {
+            "SquareMeters": 10,
+            "Discount": 25
+        }
+    ]
+}

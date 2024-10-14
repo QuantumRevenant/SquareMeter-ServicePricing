@@ -1,0 +1,31 @@
+# Build Folders
+bin/
+obj/
+
+# Visual Studio Code specific files
+.vscode/
+*.code-workspace
+
+# User specific files
+*.user
+*.suo
+*.sln.docstates
+
+# NuGet Packages
+*.nupkg
+packages/
+*.nuspec
+
+# Logs
+*.log
+
+# Others
+*.cache
+*.bak
+*.tmp
+*.swp
+*.DS_Store
+
+# Configuration files for IDEs
+.idea/
+*.iml
