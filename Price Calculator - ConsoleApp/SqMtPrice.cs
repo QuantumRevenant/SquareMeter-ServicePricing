@@ -21,7 +21,7 @@ class SqMtPrice
     }
 
 
-    public static void TemporalStart()
+    public static void LoadValues()
     {
         // Leer el recurso embebido
         string jsonString;

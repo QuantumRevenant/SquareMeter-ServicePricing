@@ -1,53 +1,40 @@
-﻿internal class Program
+﻿using QR.QRMenu;
+internal class Program
 {
     private static void Main(string[] args)
     {
-        Console.WriteLine("Hello, World!");
-
-        bool ask = true;
-
-        SqMtPrice.TemporalStart();
-
-        // Preguntar si desean generar Excel o calcular un único valor.
-        Console.WriteLine("¿Qué deseas hacer?");
-        Console.WriteLine("1. Calcular un valor único");
-        Console.WriteLine("2. Generar Excel con la tendencia completa");
-        string? opcion = Console.ReadLine();
-        Console.WriteLine(); // Para saltar a la siguiente línea después de la entrada.
-
-        if (opcion == "2")
-        {
-            ask = false; // Cambiar a modo de generación de Excel
-        }
-
-        string? continuar;
+        SqMtPrice.LoadValues();
         do
         {
-            Console.WriteLine("Escribe los metros cuadrados:");
-            string? input = Console.ReadLine();
-            if (double.TryParse(input, out double numero))
+            string[] options = { "Calcular un valor único", "Generar Excel con la tendencia completa" };
+            int option = QRMenu.OptionMenu(string.Empty, "¿Qué deseas hacer?", options);
+
+            double numero = -1;
+
+            if (option is 1 or 2)
+                numero = QRMenu.AskNumberMenu("Escribe los metros cuadrados:", (0, double.PositiveInfinity), false);
+
+            Console.WriteLine(); // Para saltar a la siguiente línea después de la entrada.
+
+            switch (option)
             {
-                if (ask)
-                {
+                case 1:
                     double valorm2 = SqMtPrice.GetPricePerSquareMeter(numero);
                     double valortotal = SqMtPrice.GetTotalPrice(numero);
                     int m2Evaluados = (int)SqMtPrice.GetActualPost(numero);
                     Console.WriteLine($"El costo por el área evaluada ({numero} m2) es: S/. {Math.Round(valortotal, 2)} (S/. {Math.Round(valorm2, 4)}/m2) - se usó el área de {m2Evaluados} m2");
-                }
-                else
-                {
-                    // Solicitar nombre del archivo de Excel
-                    Console.WriteLine("Introduce el nombre del archivo Excel (sin extensión):");
-                    string? fileName = Console.ReadLine();
+                    Console.WriteLine(); // Para saltar a la siguiente línea después de la entrada.
+                    break;
+
+                case 2:
+                    string fileName = QRMenu.AskMenu("Introduce el nombre del archivo Excel (sin extensión):");
                     string filePath = $"./{fileName}.xlsx";
 
                     // Advertir sobre la sobreescritura si el archivo ya existe
-                    if (System.IO.File.Exists(filePath))
+                    if (File.Exists(filePath))
                     {
-                        Console.WriteLine($"Advertencia: El archivo '{fileName}.xlsx' ya existe. ¿Deseas sobreescribirlo? (Y/S para sí, cualquier otra tecla para cancelar)");
-                        char sobreescribir = Console.ReadKey().KeyChar;
                         Console.WriteLine(); // Para saltar a la siguiente línea después de la entrada.
-                        if (!(sobreescribir == 'Y' || sobreescribir == 'y' || sobreescribir == 'S' || sobreescribir == 's'))
+                        if (!QRMenu.ConfirmationMenu($"Advertencia: El archivo '{fileName}.xlsx' ya existe. ¿Deseas sobreescribirlo?"))
                         {
                             Console.WriteLine("Operación cancelada. No se generó el archivo Excel.");
                             break;
@@ -74,24 +61,21 @@
                     excel.Close(filePath);
                     Console.WriteLine($"¡Excel generado exitosamente como '{fileName}.xlsx'!");
                     break; // Salir del bucle después de generar el Excel
-                }
-            }
-            else
-            {
-                Console.WriteLine("Debe ser un valor numérico :(");
-            }
 
-            // Preguntar si desea continuar
-            Console.WriteLine("¿Deseas continuar? (Y/S para sí, cualquier otra tecla para salir)");
-            continuar = Console.ReadLine();
-            Console.WriteLine(); // Para saltar a la siguiente línea después de la entrada.
+                case 0:
+                    QRMenu.Exit();
+                    break;
+
+                default:
+                    QRMenu.ErrorMenu("No deberías de estar aquí. Este es un mensaje de error.\nContacta al administrador.\n", "Código de Error: #OPTMEN421", 421);
+                    QRMenu.Exit();
+                    break;
+            }
         }
-        while (continuar == "Y" || continuar == "y" || continuar == "S" || continuar == "s");
+        while (QRMenu.ConfirmationMenu($"¿Deseas continuar?"));
 
-        Console.WriteLine("Presiona cualquier tecla para continuar...");
-        Console.ReadKey();
+        QRMenu.Exit();
     }
-
 
     public static void Print(Printable print, xlsxCreator xcl)
     {
@@ -100,7 +84,13 @@
 
     public static Printable createPrint(double metrosCuadrados)
     {
-        return new Printable { metros = SqMtPrice.GetActualPost(metrosCuadrados), precioTotal = SqMtPrice.GetTotalPrice(metrosCuadrados), precioM2 = SqMtPrice.GetPricePerSquareMeter(metrosCuadrados), descuento = SqMtPrice.GetDiscount(metrosCuadrados) * 100 };
+        return new Printable
+        {
+            metros = SqMtPrice.GetActualPost(metrosCuadrados),
+            precioTotal = SqMtPrice.GetTotalPrice(metrosCuadrados),
+            precioM2 = SqMtPrice.GetPricePerSquareMeter(metrosCuadrados),
+            descuento = SqMtPrice.GetDiscount(metrosCuadrados) * 100
+        };
     }
 }
 
